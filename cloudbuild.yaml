@@ -1,0 +1,31 @@
+steps:
+  # build the container
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--network=cloudbuild",
+        "-t",
+        "gcr.io/nuxt-ssr-maximbelkin/server",
+        ".",
+      ]
+  # push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/nuxt-ssr-maximbelkin/server"]
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "run",
+        "deploy",
+        "server",
+        "--image",
+        "gcr.io/nuxt-ssr-maximbelkin/server",
+        "--region",
+        "europe-central2",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+      ]
+images:
+  - "gcr.io/nuxt-ssr-maximbelkin/server"
