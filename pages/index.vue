@@ -2,34 +2,45 @@
   <div
     class="container mx-auto p-4 flex flex-col justify-center items-center text-center"
   >
-    <div>
-      <Logo />
-      <h1 class="title">
-        {{ message }}
-      </h1>
-      <div class="grid gap-4 grid-cols-4">
+    <div class="space-y-8">
+      <div class="flex justify-between items-end">
+        <Logo />
+        <h1 class="text-xl">
+          {{ title }}
+        </h1>
+      </div>
+
+      <div v-if="!error" class="grid gap-4 grid-cols-4">
         <div
-          v-for="mountain in mountains"
-          :key="mountain.title"
+          v-for="rocket in rockets"
+          :key="rocket.id"
           class="bg-gray-900 text-white rounded flex flex-col space-y-8 p-4 justify-between"
         >
           <div class="space-y-3">
-            <h2 class="inline-block text-lg font-bold">{{ mountain.title }}</h2>
-            <p class="inline-block text-gray-200">{{ mountain.description }}</p>
+            <h2 class="inline-block text-lg font-bold">{{ rocket.name }}</h2>
+            <p class="inline-block text-gray-200">{{ rocket.description }}</p>
           </div>
 
           <div class="space-y-3">
             <p class="inline-block italic bg-gray-200 text-gray-900 w-full">
-              {{ mountain.height }}
+              Height: {{ rocket.height.meters }} m.
+            </p>
+
+            <p class="inline-block italic bg-gray-200 text-gray-900 w-full">
+              Mass: {{ kgToTon(rocket.mass.kg) }} ton.
             </p>
 
             <img
-              class="inline-block w-full h-56 object-fill"
-              :src="mountain.image"
-              :alt="mountain.title"
+              class="inline-block w-full h-56 object-cover"
+              :src="getRandomImg(rocket.flickr_images)"
+              :alt="rocket.title"
             />
           </div>
         </div>
+      </div>
+
+      <div v-else>
+        <p>{{ error }}</p>
       </div>
     </div>
   </div>
@@ -39,26 +50,32 @@
 export default {
   data() {
     return {
-      message: "SSR WORKS",
-      mountains: []
+      title: "SpaceX Rockets",
+      rockets: [],
+      error: ""
     };
   },
   async fetch() {
-    this.mountains = await fetch("https://api.nuxtjs.dev/mountains").then(res =>
-      res.json()
-    );
+    try {
+      const { data } = await this.$axios.get(
+        "https://api.spacexdata.com/v4/rockets"
+      );
+
+      this.rockets = data;
+    } catch (e) {
+      console.error(e);
+      this.error = e.message;
+    }
+  },
+  methods: {
+    kgToTon(kgMass) {
+      const tonMass = kgMass / 1000;
+      return tonMass.toFixed(2);
+    },
+    getRandomImg(images) {
+      const idx = Math.floor(Math.random() * images.length);
+      return images[idx];
+    }
   }
 };
 </script>
-
-<style>
-.title {
-  font-family: "Quicksand", "Source Sans Pro", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-</style>

@@ -7,7 +7,7 @@ module.exports = {
   variants: {},
   plugins: [],
   purge: {
-    enabled: true,
+    enabled: process.env.NODE_ENV === "production",
     content: [
       "components/**/*.vue",
       "layouts/**/*.vue",
