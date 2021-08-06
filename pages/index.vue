@@ -3,7 +3,7 @@
     <div>
       <Logo />
       <h1 class="title">
-        ssr-test
+        Hello world
       </h1>
       <div class="links">
         <a
